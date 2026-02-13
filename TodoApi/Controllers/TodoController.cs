@@ -26,9 +26,9 @@ namespace TodoApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllTodos()
+        public IActionResult GetAllTodos([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var todos = _todoService.GetAllTodos();
+            var todos = _todoService.GetAllTodos(pageNumber, pageSize);
             return Ok(todos);
         }
 

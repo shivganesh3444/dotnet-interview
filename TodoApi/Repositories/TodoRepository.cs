@@ -34,14 +34,16 @@ namespace TodoApi.Repositories
             return todo;
         }
 
-        public List<Todo> GetAllTodos()
+        public List<Todo> GetAllTodos(int pageNumber, int pageSize)
         {
             var todos = new List<Todo>();
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
             var command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Todos";
+            command.CommandText = "SELECT * FROM Todos LIMIT @PageSize OFFSET @Offset";
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+            command.Parameters.AddWithValue("@Offset", (pageNumber - 1) * pageSize);
 
             using var reader = command.ExecuteReader();
             while (reader.Read())

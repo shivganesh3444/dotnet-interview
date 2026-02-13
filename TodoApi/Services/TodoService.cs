@@ -7,7 +7,7 @@ namespace TodoApi.Services
     public interface ITodoService
     {
         Todo CreateTodo(Todo todo);
-        List<Todo> GetAllTodos();
+        List<Todo> GetAllTodos(int pageNumber, int pageSize);
         Todo GetTodoById(int id);
         Todo UpdateTodo(int id, Todo todo);
         bool DeleteTodo(int id);
@@ -37,11 +37,11 @@ namespace TodoApi.Services
             }
         }
 
-        public List<Todo> GetAllTodos()
+        public List<Todo> GetAllTodos(int pageNumber, int pageSize)
         {
             try
             {
-                return _repository.GetAllTodos();
+                return _repository.GetAllTodos(pageNumber, pageSize);
             }
             catch (Exception ex)
             {
