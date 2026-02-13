@@ -3,6 +3,26 @@
 **Candidate Name:** Ganesh Pawar  
 **Completion Date:** 13/02/2026
 
+I have Used Integrated GitHub Copilot with GPT 4.1 model. Asked proper prompts based on the requirments to get the things done.
+I have used Ask and Agent mode for prompting. Used Ask mode to understand the current application and Agent mode to fix the existing issues.
+
+E.g. 
+
+Ask Mode Prompt:
+
+Prompt1: Act as a senior software developer and review this entire application and understand it.
+Prompt2: Can we implement JWT token based authentication an authorization for this api application?
+
+Agent Mode Prompts:
+
+Prompt1: Let's identify architectural and design problems in th entire application.
+Prompt2: Let's refractor the application following the best practices and implement above recommendations.
+Prompt3: Please proceed to add the repository layer
+Prompt4: please proceed to implement the repository layer (ITodoRepository and TodoRepository) to handle data access.
+Prompt5: Let's implement JWT token based authentication an authorization for this api application as suggsted by you.
+Prompt6: Let's use persist users using current database approach.
+
+
 ---
 
 ## Problems Identified
