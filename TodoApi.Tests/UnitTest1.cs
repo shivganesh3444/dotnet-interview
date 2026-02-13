@@ -1,24 +1,32 @@
 using Xunit;
+using Moq;
 using TodoApi.Services;
 using TodoApi.Models;
 using TodoApi.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using TodoApi.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace TodoApi.Tests;
 
 public class UnitTest1
 {
-    [Fact]
-    public void Test1()
+    private readonly Mock<ITodoRepository> _mockRepository;
+    private readonly Mock<ILogger<TodoService>> _mockLogger;
+    private readonly ITodoService _todoService;
+    private readonly TodoController _todoController;
+
+    public UnitTest1()
     {
-        var service = new TodoService();
-        Assert.True(true);
+        _mockRepository = new Mock<ITodoRepository>();
+        _mockLogger = new Mock<ILogger<TodoService>>();
+        _todoService = new TodoService(_mockRepository.Object, _mockLogger.Object);
+        _todoController = new TodoController(_todoService);
     }
 
     [Fact]
     public void TestCreateTodo()
     {
-        var service = new TodoService();
         var todo = new Todo
         {
             Title = "Test",
@@ -26,70 +34,71 @@ public class UnitTest1
             IsCompleted = false
         };
 
-        var result = service.CreateTodo(todo);
+        _mockRepository.Setup(r => r.CreateTodo(It.IsAny<Todo>())).Returns(todo);
+
+        var result = _todoService.CreateTodo(todo);
 
         Assert.NotNull(result);
-        Assert.True(result.Id > 0);
+        Assert.Equal("Test", result.Title);
     }
 
     [Fact]
     public void TestGetTodo()
     {
-        var service = new TodoService();
-        var todos = service.GetAllTodos();
+        var todos = new List<Todo>
+        {
+            new Todo { Id = 1, Title = "Test1", Description = "Desc1", IsCompleted = false },
+            new Todo { Id = 2, Title = "Test2", Description = "Desc2", IsCompleted = true }
+        };
 
-        Assert.True(todos.Count > 0);
+        _mockRepository.Setup(r => r.GetAllTodos()).Returns(todos);
+
+        var result = _todoService.GetAllTodos();
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
     }
 
     [Fact]
-    public void UpdateTest()
+    public void TestUpdateTodo()
     {
-        var service = new TodoService();
         var todo = new Todo
         {
+            Id = 1,
             Title = "Updated",
             Description = "Updated Description",
             IsCompleted = true
         };
 
-        var result = service.UpdateTodo(1, todo);
+        _mockRepository.Setup(r => r.UpdateTodo(1, It.IsAny<Todo>())).Returns(todo);
+
+        var result = _todoService.UpdateTodo(1, todo);
+
         Assert.NotNull(result);
+        Assert.Equal("Updated", result.Title);
     }
 
     [Fact]
-    public void DeleteWorks()
+    public void TestDeleteTodo()
     {
-        var service = new TodoService();
-        var result = service.DeleteTodo(999);
+        _mockRepository.Setup(r => r.DeleteTodo(1)).Returns(true);
 
-        Assert.False(result);
+        var result = _todoService.DeleteTodo(1);
+
+        Assert.True(result);
     }
 
     [Fact]
-    public void ControllerTest()
+    public void TestControllerCreateTodo()
     {
-        var controller = new TodoController();
         var todo = new Todo { Title = "Test", Description = "Desc" };
 
-        var result = controller.CreateTodo(todo);
+        _mockRepository.Setup(r => r.CreateTodo(It.IsAny<Todo>())).Returns(todo);
+
+        var result = _todoController.CreateTodo(todo) as OkObjectResult;
 
         Assert.NotNull(result);
-    }
-
-    [Fact]
-    public void TestEverything()
-    {
-        var service = new TodoService();
-
-        var todo1 = service.CreateTodo(new Todo { Title = "1", Description = "D1" });
-        var todo2 = service.CreateTodo(new Todo { Title = "2", Description = "D2" });
-
-        var all = service.GetAllTodos();
-
-        service.UpdateTodo(todo1.Id, new Todo { Title = "Updated", Description = "D1" });
-
-        service.DeleteTodo(todo2.Id);
-
-        Assert.True(all.Count >= 2);
+        Assert.Equal(200, result.StatusCode);
+        Assert.NotNull(result.Value);
     }
 }
